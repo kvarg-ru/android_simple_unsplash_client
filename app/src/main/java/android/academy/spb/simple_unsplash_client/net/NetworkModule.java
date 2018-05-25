@@ -38,7 +38,7 @@ public class NetworkModule {
         Retrofit retrofit = provideRetrofit(okHttpClient);
         mUnsplashApi = provideUnsplashApi(retrofit);
 
-        //providePicasso(context, okHttpClient);
+        providePicasso(context, okHttpClient);
 
     }
 
