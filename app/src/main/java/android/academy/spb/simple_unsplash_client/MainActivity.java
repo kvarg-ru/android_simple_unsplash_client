@@ -1,5 +1,6 @@
 package android.academy.spb.simple_unsplash_client;
 
+import android.academy.spb.simple_unsplash_client.PreviewFragment.PreviewFragment;
 import android.academy.spb.simple_unsplash_client.ViewPageComponents.ScreenSlidePageFragment;
 import android.academy.spb.simple_unsplash_client.ViewPageComponents.ScreenSlidePagerAdapter;
 import android.academy.spb.simple_unsplash_client.ViewPageComponents.ZoomOutPageTransformer;
@@ -8,6 +9,7 @@ import android.academy.spb.simple_unsplash_client.net.unsplash.pojo.Collection;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +24,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ScreenSlidePageFragment.FragmentListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
 
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.content, MainFragment.newInstance())
-                    .commit();
+            openFragment(MainFragment.newInstance(), false);
 
         }
 
@@ -57,6 +56,29 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().popBackStack();
 
         }
+
+    }
+
+    @Override
+    public void onPreviewCollectionClick(int collectionId) {
+
+        openFragment(PreviewFragment.newInstance(collectionId), true);
+
+    }
+
+    private void openFragment(Fragment fragment, boolean addToBackStack) {
+
+        FragmentTransaction transaction = getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.content, fragment);
+
+        if (addToBackStack) {
+
+            transaction.addToBackStack(null);
+
+        }
+
+        transaction.commit();
 
     }
 

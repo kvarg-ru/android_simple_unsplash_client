@@ -3,6 +3,7 @@ package android.academy.spb.simple_unsplash_client.ViewPageComponents;
 import android.academy.spb.simple_unsplash_client.CollectionRepository;
 import android.academy.spb.simple_unsplash_client.R;
 import android.academy.spb.simple_unsplash_client.net.unsplash.pojo.Collection;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,6 +30,14 @@ public class ScreenSlidePageFragment extends Fragment {
     private TextView mTitleTV;
     private TextView mDescriptionTV;
     private ImageView mImageView;
+
+    public interface FragmentListener {
+
+        void onPreviewCollectionClick(int collectionId);
+
+    }
+
+    private FragmentListener listener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +70,16 @@ public class ScreenSlidePageFragment extends Fragment {
         String url = mCollection.getPreviewPhotos().get(0).getUrls().getSmall();
         Picasso.get().load(url).into(mImageView);
 
+        if (listener != null) {
+            mImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onPreviewCollectionClick(mCollection.getId());
+                }
+            });
+        }
+
+
     }
 
     public static ScreenSlidePageFragment newInstance(int id) {
@@ -71,5 +90,22 @@ public class ScreenSlidePageFragment extends Fragment {
         fragment.setArguments(bundle);
         return fragment;
 
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof FragmentListener) {
+
+            listener = (FragmentListener) context;
+
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
     }
 }
