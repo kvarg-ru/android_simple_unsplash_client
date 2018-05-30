@@ -70,7 +70,9 @@ public class MainActivity extends AppCompatActivity implements ScreenSlidePageFr
 
         FragmentTransaction transaction = getSupportFragmentManager()
                                                 .beginTransaction()
-                                                .replace(R.id.content, fragment);
+                                                .setCustomAnimations(
+                                                        R.anim.slide_in_right, R.anim.slide_out_left,
+                                                        R.anim.slide_in_left, R.anim.slide_out_right);
 
         if (addToBackStack) {
 
@@ -78,7 +80,9 @@ public class MainActivity extends AppCompatActivity implements ScreenSlidePageFr
 
         }
 
-        transaction.commit();
+        transaction
+                .replace(R.id.content, fragment)
+                .commit();
 
     }
 
