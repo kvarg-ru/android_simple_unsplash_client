@@ -1,5 +1,7 @@
 package android.academy.spb.simple_unsplash_client.net;
 
+import android.academy.spb.simple_unsplash_client.auth.AuthInterceptor;
+import android.academy.spb.simple_unsplash_client.auth.Oauth2UnsplashApi;
 import android.academy.spb.simple_unsplash_client.net.unsplash.Constants;
 import android.academy.spb.simple_unsplash_client.net.unsplash.api.UnsplashApi;
 import android.content.Context;
@@ -31,12 +33,17 @@ public class NetworkModule {
     private final static long HTTP_CACHE_SIZE = 1024 * 1024 * 10; // 10 MB
 
     private UnsplashApi mUnsplashApi;
+    private Oauth2UnsplashApi mOauth2UnsplashApi;
 
     public NetworkModule(Context context) {
 
-        OkHttpClient okHttpClient = provideOkHttpClient(context, provideInterceptor());
-        Retrofit retrofit = provideRetrofit(okHttpClient);
+        OkHttpClient okHttpClient = provideOkHttpClient(context, provideInterceptor(), new AuthInterceptor());
+
+        Retrofit retrofit = provideRetrofit(okHttpClient, Constants.API_BASE_URL);
         mUnsplashApi = provideUnsplashApi(retrofit);
+
+        Retrofit authRetrofit = provideRetrofit(okHttpClient, Constants.API_AUTH_BASE_URL);
+        mOauth2UnsplashApi = provideOauth2UnsplashApi(authRetrofit);
 
         providePicasso(context, okHttpClient);
 
@@ -46,18 +53,26 @@ public class NetworkModule {
         return mUnsplashApi;
     }
 
+    public Oauth2UnsplashApi getOauth2UnsplashApi() {
+        return mOauth2UnsplashApi;
+    }
+
     private UnsplashApi provideUnsplashApi(Retrofit retrofit) {
         return retrofit.create(UnsplashApi.class);
     }
 
-    private Retrofit provideRetrofit(OkHttpClient okHttpClient) {
-        return new Retrofit.Builder().baseUrl(Constants.API_BASE_URL)
+    private Oauth2UnsplashApi provideOauth2UnsplashApi(Retrofit retrofit) {
+        return retrofit.create(Oauth2UnsplashApi.class);
+    }
+
+    private Retrofit provideRetrofit(OkHttpClient okHttpClient, String baseUrl) {
+        return new Retrofit.Builder().baseUrl(baseUrl)
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
 
-    private OkHttpClient provideOkHttpClient(Context context, Interceptor interceptor) {
+    private OkHttpClient provideOkHttpClient(Context context, Interceptor... userInterceptors) {
 
         HttpLoggingInterceptor.Logger logger = new HttpLoggingInterceptor.Logger() {
             @Override
@@ -66,18 +81,20 @@ public class NetworkModule {
             }
         };
 
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(logger).setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(logger).setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(interceptor)
                 .addInterceptor(httpLoggingInterceptor)
-                .cache(new Cache(new File(context.getCacheDir(), "SIMPLE_UNSPLASH_CLIENT_HTTP_CACHE"), HTTP_CACHE_SIZE))
-                .build();
+                .cache(new Cache(new File(context.getCacheDir(), "SIMPLE_UNSPLASH_CLIENT_HTTP_CACHE"), HTTP_CACHE_SIZE));
 
-        return okHttpClient;
+        for (Interceptor userInterceptor : userInterceptors) {
+            okHttpClientBuilder.addInterceptor(userInterceptor);
+        }
+
+        return okHttpClientBuilder.build();
     }
 
     private Interceptor provideInterceptor() {

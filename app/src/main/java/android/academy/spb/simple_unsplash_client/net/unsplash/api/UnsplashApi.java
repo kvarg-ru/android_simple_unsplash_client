@@ -13,7 +13,7 @@ import retrofit2.http.GET;
 
 public interface UnsplashApi {
 
-    @GET("/collections/curated")
+    @GET("collections/curated")
     Call<List<Collection>> getCuratedCollection();
 
 }

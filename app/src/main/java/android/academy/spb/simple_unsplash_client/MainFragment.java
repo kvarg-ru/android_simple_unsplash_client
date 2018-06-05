@@ -48,7 +48,7 @@ public class MainFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ((App) getActivity().getApplication()).getmUnsplashApi().getCuratedCollection().enqueue(new Callback<List<Collection>>() {
+        ((App) getActivity().getApplication()).getUnsplashApi().getCuratedCollection().enqueue(new Callback<List<Collection>>() {
             @Override
             public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
 
