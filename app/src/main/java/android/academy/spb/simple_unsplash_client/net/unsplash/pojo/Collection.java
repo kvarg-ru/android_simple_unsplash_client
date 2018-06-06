@@ -44,6 +44,9 @@ public class Collection {
     @SerializedName("tags")
     @Expose
     private List<Object> tags = null;
+    @SerializedName("cover_photo")
+    @Expose
+    private CoverPhoto coverPhoto = null;
     @SerializedName("preview_photos")
     @Expose
     private List<PreviewPhoto> previewPhotos = null;
@@ -148,6 +151,14 @@ public class Collection {
 
     public void setPreviewPhotos(List<PreviewPhoto> previewPhotos) {
         this.previewPhotos = previewPhotos;
+    }
+
+    public CoverPhoto getCoverPhoto() {
+        return coverPhoto;
+    }
+
+    public void setCoverPhoto(CoverPhoto coverPhoto) {
+        this.coverPhoto = coverPhoto;
     }
 
     public User getUser() {

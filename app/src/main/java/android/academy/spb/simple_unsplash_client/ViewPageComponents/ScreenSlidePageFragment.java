@@ -1,13 +1,16 @@
 package android.academy.spb.simple_unsplash_client.ViewPageComponents;
 
+import android.academy.spb.simple_unsplash_client.App;
 import android.academy.spb.simple_unsplash_client.CollectionRepository;
 import android.academy.spb.simple_unsplash_client.R;
+import android.academy.spb.simple_unsplash_client.net.unsplash.api.UnsplashApi;
 import android.academy.spb.simple_unsplash_client.net.unsplash.pojo.Collection;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +23,10 @@ import com.like.IconType;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
 import com.squareup.picasso.Picasso;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by User on 24.05.2018.
@@ -73,8 +80,14 @@ public class ScreenSlidePageFragment extends Fragment {
 
         mTitleTV.setText(mCollection.getTitle());
         mDescriptionTV.setText(mCollection.getDescription());
-        String url = mCollection.getPreviewPhotos().get(0).getUrls().getSmall();
+        //String url = mCollection.getPreviewPhotos().get(0).getUrls().getSmall();
+        String url = mCollection.getCoverPhoto().getUrls().getSmall();
         Picasso.get().load(url).into(mImageView);
+
+        if (mCollection.getCoverPhoto().getLikedByUser()) {
+            Log.d("CollectionView", "Already Liked!");
+            //mLikeButton.setEnabled(true);
+        }
 
         if (listener != null) {
             mImageView.setOnClickListener(new View.OnClickListener() {
@@ -88,12 +101,12 @@ public class ScreenSlidePageFragment extends Fragment {
         mLikeButton.setOnLikeListener(new OnLikeListener() {
             @Override
             public void liked(LikeButton likeButton) {
-                Toast.makeText(getContext(), "Like", Toast.LENGTH_LONG).show();
+                performLikeOrUnlike(true);
             }
 
             @Override
             public void unLiked(LikeButton likeButton) {
-                Toast.makeText(getContext(), "Unlike", Toast.LENGTH_LONG).show();
+                performLikeOrUnlike(false);
             }
         });
 
@@ -106,6 +119,55 @@ public class ScreenSlidePageFragment extends Fragment {
         bundle.putInt(ARG_COLLECTION_ID, id);
         fragment.setArguments(bundle);
         return fragment;
+
+    }
+
+    private UnsplashApi getUnsplashApi() {
+        return ((App) getActivity().getApplication()).getUnsplashApi();
+    }
+
+    private void performLikeOrUnlike(final boolean like) {
+
+        Callback<Void> callback = new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+
+                if (like) {
+                    if (response.code() == 201) {
+                        Toast.makeText(getContext(), "Liked successful", Toast.LENGTH_LONG).show();
+                        Log.d("CollectionView", "Liked successful");
+                    } else {
+                        Toast.makeText(getContext(), "Liked NOT successful", Toast.LENGTH_LONG).show();
+                        Log.d("CollectionView", "Liked NOT successful");
+                    }
+
+                } else {
+                    if (response.code() == 200) {
+                        Toast.makeText(getContext(), "Unliked successful", Toast.LENGTH_LONG).show();
+                        Log.d("CollectionView", "Unliked successful");
+                    } else {
+                        Toast.makeText(getContext(), "Unliked NOT successful", Toast.LENGTH_LONG).show();
+                        Log.d("CollectionView", "Unliked NOT successful");
+                    }
+
+
+                }
+
+                Log.d("CollectionView", "Responce code: " + response.code());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Shit happened!", Toast.LENGTH_LONG).show();
+                Log.d("CollectionView", "Like operation is failed");
+            }
+        };
+
+        if (like) {
+            getUnsplashApi().likePhoto(mCollection.getCoverPhoto().getId()).enqueue(callback);
+        } else {
+            getUnsplashApi().unlikePhoto(mCollection.getCoverPhoto().getId()).enqueue(callback);
+        }
 
     }
 
