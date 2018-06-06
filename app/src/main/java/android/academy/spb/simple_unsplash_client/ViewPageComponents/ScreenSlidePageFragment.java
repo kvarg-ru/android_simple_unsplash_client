@@ -14,7 +14,11 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.like.IconType;
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -30,6 +34,7 @@ public class ScreenSlidePageFragment extends Fragment {
     private TextView mTitleTV;
     private TextView mDescriptionTV;
     private ImageView mImageView;
+    private LikeButton mLikeButton;
 
     public interface FragmentListener {
 
@@ -57,6 +62,7 @@ public class ScreenSlidePageFragment extends Fragment {
         mTitleTV = rootView.findViewById(R.id.titleTextView);
         mDescriptionTV = rootView.findViewById(R.id.descriprionTextView);
         mImageView = rootView.findViewById(R.id.pictureImageView);
+        mLikeButton = rootView.findViewById(R.id.likeButton);
 
         return rootView;
     }
@@ -79,6 +85,17 @@ public class ScreenSlidePageFragment extends Fragment {
             });
         }
 
+        mLikeButton.setOnLikeListener(new OnLikeListener() {
+            @Override
+            public void liked(LikeButton likeButton) {
+                Toast.makeText(getContext(), "Like", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void unLiked(LikeButton likeButton) {
+                Toast.makeText(getContext(), "Unlike", Toast.LENGTH_LONG).show();
+            }
+        });
 
     }
 

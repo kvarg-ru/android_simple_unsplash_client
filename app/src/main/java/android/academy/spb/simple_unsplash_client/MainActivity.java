@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements ScreenSlidePageFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        PreferencesProvider.initialization(this);
         if (PreferencesProvider.getPreferences().getAccessToken() == null) {
             AuthActivity.startForResult(this);
         }

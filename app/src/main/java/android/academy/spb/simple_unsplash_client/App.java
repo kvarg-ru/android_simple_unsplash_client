@@ -3,6 +3,7 @@ package android.academy.spb.simple_unsplash_client;
 import android.academy.spb.simple_unsplash_client.auth.Oauth2UnsplashApi;
 import android.academy.spb.simple_unsplash_client.net.NetworkModule;
 import android.academy.spb.simple_unsplash_client.net.unsplash.api.UnsplashApi;
+import android.academy.spb.simple_unsplash_client.storage.PreferencesProvider;
 import android.app.Application;
 
 /**
@@ -22,6 +23,8 @@ public class App extends Application {
 
         mUnsplashApi =  networkModule.getUnsplashApi();
         mOauth2UnsplashApi = networkModule.getOauth2UnsplashApi();
+
+        PreferencesProvider.initialization(this);
 
     }
 
